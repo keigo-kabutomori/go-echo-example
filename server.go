@@ -14,16 +14,15 @@ import (
 )
 
 // Log :
-// ユーザーデータ
+// サンプル
 type Log struct {
 	gorm.Model
 	Text string
 }
 
-var db gorm.DB
+var db *gorm.DB
 
 func main() {
-
 	// データベースに接続
 	db, err := gorm.Open(os.Getenv("DB_TYPE"), os.Getenv("DB_NAME"))
 	if err != nil {
