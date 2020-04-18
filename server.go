@@ -28,7 +28,7 @@ func main() {
 
 	// データベースに接続
 	var err error
-	db, err = gorm.Open(os.Getenv("DB_TYPE"), os.Getenv("DB_NAME"))
+	db, err = gorm.Open(os.Getenv("DB_TYPE"), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		panic("データベースへの接続に失敗しました")
 	}
