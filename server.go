@@ -35,9 +35,9 @@ func main() {
 	var connection string
 	if dbType == "postgres" {
 		// heroku
-		connection, err := pq.ParseURL(dbURL)
+		connection, err = pq.ParseURL(dbURL)
 		if err != nil {
-			panic(err.Error())
+			logrus.Fatal(err.Error())
 		}
 		connection += " sslmode=require"
 	} else {
