@@ -11,6 +11,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo"
+	"github.com/lib/pq"
 )
 
 // Log :
@@ -26,9 +27,24 @@ func main() {
 	// 環境変数を読み込む
 	loadEnv()
 
-	// データベースに接続
 	var err error
-	db, err = gorm.Open(os.Getenv("DB_TYPE"), os.Getenv("DATABASE_URL"))
+
+	// データベースに接続
+	dbType := os.Getenv("DB_TYPE")
+	dbURL := os.Getenv("DATABASE_URL")
+	var connection string
+	if dbType == "postgres" {
+		// heroku
+		connection, err := pq.ParseURL(dbURL)
+		if err != nil {
+			panic(err.Error())
+		}
+		connection += " sslmode=require"
+	} else {
+		// local
+		connection = dbURL
+	}
+	db, err = gorm.Open(os.Getenv("DB_TYPE"), connection)
 	if err != nil {
 		panic("データベースへの接続に失敗しました")
 	}
