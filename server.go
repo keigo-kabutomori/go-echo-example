@@ -17,14 +17,18 @@ import (
 // サンプル
 type Log struct {
 	gorm.Model
-	Text string
+	Text string `json:"text"`
 }
 
 var db *gorm.DB
 
 func main() {
+	// 環境変数を読み込む
+	loadEnv()
+
 	// データベースに接続
-	db, err := gorm.Open(os.Getenv("DB_TYPE"), os.Getenv("DB_NAME"))
+	var err error
+	db, err = gorm.Open(os.Getenv("DB_TYPE"), os.Getenv("DB_NAME"))
 	if err != nil {
 		panic("データベースへの接続に失敗しました")
 	}
