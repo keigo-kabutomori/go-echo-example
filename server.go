@@ -12,6 +12,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo"
 	"github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 )
 
 // Log :
@@ -44,9 +45,11 @@ func main() {
 		// local
 		connection = dbURL
 	}
-	db, err = gorm.Open(os.Getenv("DB_TYPE"), connection)
+	logrus.Println("db type:", dbType)
+	logrus.Println("db connection:", connection)
+	db, err = gorm.Open(dbType, connection)
 	if err != nil {
-		panic("データベースへの接続に失敗しました")
+		logrus.Fatal("データベースへの接続に失敗しました")
 	}
 	// アプリが終了したらDBと接続解除
 	defer db.Close()
