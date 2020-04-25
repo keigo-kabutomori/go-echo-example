@@ -17,11 +17,14 @@ function addSubmitSignupEvent() {
   const modal = document.getElementById('failModal')
   console.log('add form-signup event')
 
-  if (form != null) {
+  // 要素があることを確認
+  if (form != null && modal != null) {
 
+    // イベントを追加
     form.addEventListener("submit", function (e) {
       console.log('onsubmit!!')
 
+      // ブラウザ標準のイベントは殺しておく
       e.preventDefault();
 
       // フォームの値を取得
@@ -78,11 +81,14 @@ function addSubmitSigninEvent() {
   const modal = document.getElementById('failModal')
   console.log('add form-signin event')
 
-  if (form != null) {
+  // 要素があることを確認
+  if (form != null && modal != null) {
 
+    // イベントを追加
     form.addEventListener("submit", function (e) {
       console.log('onsubmit!!')
 
+      // ブラウザ標準のイベントは殺しておく
       e.preventDefault();
 
       // フォームの値を取得
@@ -209,11 +215,14 @@ function addPostLogEvent() {
   const modal = document.getElementById('failModal')
   console.log('add form-log event')
 
-  if (form != null) {
+  // 要素があることを確認
+  if (form != null && modal != null) {
 
+    // イベントを追加
     form.addEventListener("submit", function (e) {
       console.log('onsubmit!!')
 
+      // ブラウザ標準のイベントは殺しておく
       e.preventDefault();
 
       // トークンの取得
