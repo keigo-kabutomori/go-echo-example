@@ -8,11 +8,12 @@
 
 ## 環境変数
 
-| 変数名       | 説明                     |
-| ------------ | ------------------------ |
-| DB_TYPE      | データベースのタイプ     |
-| DATABASE_URL | DBのURLを入れて下さい    |
-| PORT         | ポート番号を入れて下さい |
+| 変数名       | 説明                                          |
+| ------------ | --------------------------------------------- |
+| DB_TYPE      | データベースのタイプ                          |
+| DATABASE_URL | DBのURLを入れて下さい                         |
+| PORT         | ポート番号を入れて下さい                      |
+| SECRET_KEY   | JWT用のシークレットキー。文字列なら何でもOK。 |
 
 ### ローカルで確認する場合
 `.env.sample`を`.env`に名前を変更してください。
@@ -26,12 +27,52 @@ Herokuで動かす場合
 | DB_TYPE      | `postgres`                                                                             |
 | DATABASE_URL | PostgreSQLをHerokuにインストールすると自動的に設定されるのでユーザー側で設定不要です。 |
 | PORT         | Heroku側で自動的に設定されるのでユーザー側で設定不要です。                             |
+| SECRET_KEY   | JWT用のシークレットキー。文字列なら何でもOK。                                          |
 
 ## API一覧
 
+### `POST /signup`
+
+ユーザー登録を行う
+
+```json
+{
+  "email":"me@example.com",
+  "password":"test0123"
+}
+```
+
+#### Example Response
+
+```json
+{
+  "token":"xxxxxxxxxxxxxxxxx"
+}
+```
+
+### `POST /signin`
+
+サインインを行う
+
+```json
+{
+  "email":"me@example.com",
+  "password":"test0123"
+}
+```
+
+#### Example Response
+
+```json
+{
+  "token":"xxxxxxxxxxxxxxxxx"
+}
+```
+
+
 ### `GET /logs`
 
-ログ一覧を取得する
+ログ一覧を取得する。ログインが必要。
 
 #### Example Response
 
@@ -60,7 +101,7 @@ Herokuで動かす場合
 
 ### `GET /logs/:id`
 
-ログを取得する
+ログを取得する。ログインが必要。
 
 #### Example Response
 
@@ -76,7 +117,7 @@ Herokuで動かす場合
 
 ### `POST /logs`
 
-ログを作成する
+ログを作成する。ログインが必要。
 
 #### Exapmle Request
 
@@ -100,7 +141,7 @@ Herokuで動かす場合
 
 ### `PUT /logs/:id`
 
-ログを更新する
+ログを更新する。ログインが必要。
 
 #### Exapmle Request
 
@@ -124,7 +165,7 @@ Herokuで動かす場合
 
 ### `DELETE /logs/:id`
 
-ログを削除する
+ログを削除する。ログインが必要。
 
 #### Example Response
 
