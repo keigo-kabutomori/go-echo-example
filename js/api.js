@@ -35,8 +35,12 @@ function addSubmitSignupEvent() {
           $(modal).modal('show')
         } else {
           // 成功した場合
-          console.log(xhr.status)
           console.log("success!")
+          // tokenの保存
+          if (xhr.response.token) {
+            console.log("token:" + xhr.response.token)
+            localStorage.setItem('token', xhr.response.token)
+          }
           location.href = './index.html'
         }
         return false
@@ -49,6 +53,7 @@ function addSubmitSignupEvent() {
         $(modal).modal('show')
         return false
       };
+      xhr.responseType = 'json'
       xhr.send(data);
 
       return false
@@ -91,8 +96,12 @@ function addSubmitSigninEvent() {
           $(modal).modal('show')
         } else {
           // 成功した場合
-          console.log(xhr.status)
           console.log("success!")
+          // tokenの保存
+          if (xhr.response.token) {
+            console.log("token:" + xhr.response.token)
+            localStorage.setItem('token', xhr.response.token)
+          }
           location.href = './index.html'
         }
         return false
@@ -105,6 +114,7 @@ function addSubmitSigninEvent() {
         $(modal).modal('show')
         return false
       };
+      xhr.responseType = 'json'
       xhr.send(data);
 
       return false
