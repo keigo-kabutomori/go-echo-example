@@ -73,10 +73,16 @@ func main() {
 
 	// サーバー用のインスタンスの取得
 	e := echo.New()
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"},
-		AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
-	}))
+	// e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+	// 	AllowOrigins: []string{"*"},
+	// 	AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
+	// }))
+
+	// 静的ファイル
+	e.Static("/assets", "assets")
+	e.File("/", "public/index.html")
+	e.File("/signup", "public/signup.html")
+	e.File("/signin", "public/signin.html")
 
 	// APIのURL設定
 	a := e.Group("/api")

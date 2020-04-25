@@ -33,7 +33,7 @@ function addSubmitSignupEvent() {
 
       // APIの接続先とデータの設定
       const method = 'POST'
-      const uri = 'http://localhost:51210/api/v1/signup'
+      const uri = '/api/v1/signup'
       const data = '{"email":"' + email + '","password":"' + password + '"}'
 
       // API通信開始！
@@ -55,7 +55,7 @@ function addSubmitSignupEvent() {
             console.log("token:" + xhr.response.token)
             localStorage.setItem('token', xhr.response.token)
           }
-          location.href = './index.html'
+          location.href = '/'
         }
         return false
       }
@@ -97,7 +97,7 @@ function addSubmitSigninEvent() {
 
       // APIの接続先とデータの設定
       const method = 'POST'
-      const uri = 'http://localhost:51210/api/v1/signin'
+      const uri = '/api/v1/signin'
       const data = '{"email":"' + email + '","password":"' + password + '"}'
 
       // API通信開始！
@@ -119,7 +119,7 @@ function addSubmitSigninEvent() {
             console.log("token:" + xhr.response.token)
             localStorage.setItem('token', xhr.response.token)
           }
-          location.href = './index.html'
+          location.href = '/'
         }
         return false
       }
@@ -145,7 +145,7 @@ function getToken() {
     const modal = document.getElementById('failModal')
     if (gToken == null) {
       console.log("token is null")
-      modal.modal('show')
+      $(modal).modal('show')
     } else {
       console.log("token is " + gToken)
     }
@@ -164,7 +164,7 @@ function getLogs() {
 
     // APIの接続先とデータの設定
     const method = 'GET'
-    const uri = 'http://localhost:51210/api/v1/logs'
+    const uri = '/api/v1/logs'
 
     // API通信開始！
     let xhr = new XMLHttpRequest()
@@ -233,7 +233,7 @@ function addPostLogEvent() {
 
       // APIの接続先とデータの設定
       const method = 'POST'
-      const uri = 'http://localhost:51210/api/v1/logs'
+      const uri = '/api/v1/logs'
       const data = '{"text":"' + text + '"}'
 
       // API通信開始！
