@@ -233,7 +233,7 @@ func signin(c echo.Context) (err error) {
 func getLogs(c echo.Context) error {
 	// ログ一覧をDBから取得
 	var l []Log
-	if err := db.Find(&l).Error; err != nil {
+	if err := db.Order("created_at desc").Find(&l).Error; err != nil {
 		logrus.Error(err, c)
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
