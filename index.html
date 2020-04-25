@@ -11,8 +11,21 @@
 </head>
 
 <body>
-  <div class="container text-center">
+  <!-- Main Contents -->
+  <div class="container">
+    <form id="form-log">
+      <div class="form-group">
+        <label for="input-text">テキスト</label>
+        <input type="text" class="form-control" id="input-text" aria-describedby="text-help">
+        <small id="text-help" class="form-text text-muted">テキストを入力してね</small>
+      </div>
+      <button type="submit" class="btn btn-primary" id="submit-log">Submit</button>
+    </form>
+    <ul id="logs">
+    </ul>
   </div>
+  <script src="https://code.jquery.com/jquery-3.5.0.min.js"
+    integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
     integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
   </script>

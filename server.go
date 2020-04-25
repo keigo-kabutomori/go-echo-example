@@ -73,12 +73,22 @@ func main() {
 
 	// サーバー用のインスタンスの取得
 	e := echo.New()
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+	}))
 
-	e.POST("/signup", signup)
-	e.POST("/signin", signin)
+	// APIのURL設定
+	a := e.Group("/api")
+	v1 := a.Group("/v1")
+
+	// ログイン不要
+	v1.POST("/signup", signup)
+	v1.POST("/signin", signin)
 
 	// ここからはログインが必用
-	r := e.Group("")
+	r := v1.Group("")
 	r.Use(middleware.JWT([]byte(secretKey)))
 	// ルーティング設定
 	r.GET("/logs", getLogs)

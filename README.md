@@ -31,7 +31,7 @@ Herokuで動かす場合
 
 ## API一覧
 
-### `POST /signup`
+### `POST /api/v1/signup`
 
 ユーザー登録を行う
 
@@ -50,7 +50,7 @@ Herokuで動かす場合
 }
 ```
 
-### `POST /signin`
+### `POST /api/v1/signin`
 
 サインインを行う
 
@@ -70,7 +70,7 @@ Herokuで動かす場合
 ```
 
 
-### `GET /logs`
+### `GET /api/v1/logs`
 
 ログ一覧を取得する。ログインが必要。
 
@@ -99,7 +99,7 @@ Herokuで動かす場合
 ]
 ```
 
-### `GET /logs/:id`
+### `GET /api/v1/logs/:id`
 
 ログを取得する。ログインが必要。
 
@@ -115,7 +115,7 @@ Herokuで動かす場合
 }
 ```
 
-### `POST /logs`
+### `POST /api/v1/logs`
 
 ログを作成する。ログインが必要。
 
@@ -139,7 +139,7 @@ Herokuで動かす場合
 }
 ```
 
-### `PUT /logs/:id`
+### `PUT /api/v1/logs/:id`
 
 ログを更新する。ログインが必要。
 
@@ -163,7 +163,7 @@ Herokuで動かす場合
 }
 ```
 
-### `DELETE /logs/:id`
+### `DELETE /api/v1/logs/:id`
 
 ログを削除する。ログインが必要。
 
