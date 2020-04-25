@@ -141,16 +141,15 @@ func getUserByEmail(email string) (*User, error) {
 
 // サインアップ
 func signup(c echo.Context) (err error) {
-	// フォームから値を取得
-	email := c.FormValue("email")
-	password := c.FormValue("password")
-
 	// インスタンスの作成
 	u := new(User)
-	u.Email = email
+	if err := c.Bind(u); err != nil {
+		logrus.Warn(err, c)
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
 	// パスワードのハッシュ化
-	if u.Password, err = passwordHash(password); err != nil {
-		logrus.Warn("signup", err.Error())
+	if u.Password, err = passwordHash(u.Password); err != nil {
+		logrus.Warn(err, c)
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
@@ -161,12 +160,14 @@ func signup(c echo.Context) (err error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	t, err := token.SignedString([]byte(secretKey))
 	if err != nil {
+		logrus.Error(err, c)
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
 	// DBに保存
 	u.Token = t
 	if err := db.Create(&u).Error; err != nil {
+		logrus.Warn(err, c)
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
@@ -178,17 +179,22 @@ func signup(c echo.Context) (err error) {
 
 // ログイン
 func signin(c echo.Context) (err error) {
-	email := c.FormValue("email")
-	password := c.FormValue("password")
+	tu := new(User)
+	if err := c.Bind(tu); err != nil {
+		logrus.Warn(err, c)
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
 
 	// ユーザーを検索
 	u := new(User)
-	if u, err = getUserByEmail(email); err != nil {
+	if u, err = getUserByEmail(tu.Email); err != nil {
+		logrus.Warn(err, c)
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
 	// パスワードチェック
-	if err = passwordVerify(u.Password, password); err != nil {
+	if err = passwordVerify(u.Password, tu.Password); err != nil {
+		logrus.Warn(err, c)
 		return c.JSON(http.StatusUnauthorized, err.Error())
 	}
 
@@ -199,12 +205,14 @@ func signin(c echo.Context) (err error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	t, err := token.SignedString([]byte(secretKey))
 	if err != nil {
+		logrus.Error(err, c)
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
 	// トークンを保存
 	u.Token = t
 	if err := db.Save(&u).Error; err != nil {
+		logrus.Warn(err, c)
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
@@ -221,6 +229,7 @@ func getLogs(c echo.Context) error {
 	// ログ一覧をDBから取得
 	var l []Log
 	if err := db.Find(&l).Error; err != nil {
+		logrus.Error(err, c)
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(http.StatusOK, l)
@@ -231,11 +240,13 @@ func getLog(c echo.Context) error {
 	// urlからidを取得
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
+		logrus.Warn(err, c)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	// DBから該当のレコードを取得
 	l := new(Log)
 	if err := db.First(l, id).Error; err != nil {
+		logrus.Error(err, c)
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(http.StatusOK, l)
@@ -246,9 +257,11 @@ func createLog(c echo.Context) error {
 	// リクエストパラメータを取得
 	l := new(Log)
 	if err := c.Bind(l); err != nil {
+		logrus.Warn(err, c)
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	if err := db.Create(&l).Error; err != nil {
+		logrus.Warn(err, c)
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	return c.JSON(http.StatusOK, l)
@@ -259,21 +272,25 @@ func updateLog(c echo.Context) error {
 	// urlからidを取得
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
+		logrus.Warn(err, c)
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	// DBから該当のレコードを取得
 	l := new(Log)
 	if err := db.First(l, id).Error; err != nil {
+		logrus.Error(err, c)
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	// リクエストパラメータを取得
 	r := new(Log)
 	if err := c.Bind(r); err != nil {
+		logrus.Warn(err, c)
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	// レコードを更新
 	l.Text = r.Text
 	if err := db.Save(&l).Error; err != nil {
+		logrus.Warn(err, c)
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	return c.JSON(http.StatusOK, l)
@@ -284,15 +301,18 @@ func deleteLog(c echo.Context) error {
 	// urlからidを取得
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
+		logrus.Warn(err, c)
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	// DBから該当のレコードを取得
 	l := new(Log)
 	if err := db.First(l, id).Error; err != nil {
+		logrus.Error(err, c)
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	// 削除
 	if err := db.Delete(l).Error; err != nil {
+		logrus.Error(err, c)
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(http.StatusOK, l)
