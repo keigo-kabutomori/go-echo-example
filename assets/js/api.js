@@ -257,6 +257,7 @@ function addPostLogEvent() {
             li.innerText = xhr.response.CreatedAt + ":" + xhr.response.text
             ul.appendChild(li)
           }
+          form.text.value = ""
         }
         return false
       }
