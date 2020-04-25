@@ -255,7 +255,7 @@ function addPostLogEvent() {
           if (ul) {
             let li = document.createElement('li')
             li.innerText = xhr.response.CreatedAt + ":" + xhr.response.text
-            ul.appendChild(li)
+            ul.insertBefore(li, ul.firstChild)
           }
           form.text.value = ""
         }
