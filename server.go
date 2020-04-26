@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 	"os"
 	"strconv"
@@ -22,7 +23,9 @@ import (
 // サンプル
 type Log struct {
 	gorm.Model
-	Text string `json:"text" form:"text" query:"text"`
+	Text     string `json:"text" form:"text" query:"text"`
+	UserID   uint
+	UserName string `json:"user_name" form:"text" query:"text" gorm:"-"`
 }
 
 // User :
@@ -32,6 +35,14 @@ type User struct {
 	Email    string `json:"email" form:"email" query:"email" gorm:"unique;primary_key;not null"`
 	Password string `json:"password" form:"password" query:"password" gorm:"not null"`
 	Token    string `json:"token" form:"token" query:"token"`
+	Name     string `json:"name" form:"name" query:"name" gorm:"not null;default:henoheno"`
+	Logs     []Log  `json:"logs"`
+}
+
+type jwtCustomClaims struct {
+	ID   uint   `json:"id"`
+	Name string `json:"name"`
+	jwt.StandardClaims
 }
 
 var db *gorm.DB
@@ -73,10 +84,10 @@ func main() {
 
 	// サーバー用のインスタンスの取得
 	e := echo.New()
-	// e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-	// 	AllowOrigins: []string{"*"},
-	// 	AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
-	// }))
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		// AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
+	}))
 
 	// 静的ファイル
 	e.Static("/assets", "assets")
@@ -91,6 +102,7 @@ func main() {
 	// ログイン不要
 	v1.POST("/signup", signup)
 	v1.POST("/signin", signin)
+	v1.GET("/helloworld", getHelloworld)
 
 	// ここからはログインが必用
 	r := v1.Group("")
@@ -134,6 +146,18 @@ func passwordVerify(hash string, pw string) error {
 // ===============================
 // API
 // ----
+// Common
+func getHelloworld(c echo.Context) (err error) {
+	type response struct {
+		Text string `json:"text"`
+	}
+	r := response{
+		Text: "hello world!! Have a nice time here!!",
+	}
+	return c.JSON(http.StatusOK, r)
+}
+
+// ----
 // Users
 // Emailからユーザーを検索
 func getUserByEmail(email string) (*User, error) {
@@ -159,8 +183,12 @@ func signup(c echo.Context) (err error) {
 	}
 
 	// JWT トークン作成
-	claims := &jwt.StandardClaims{
-		ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
+	claims := &jwtCustomClaims{
+		u.ID,
+		u.Name,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
+		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	t, err := token.SignedString([]byte(secretKey))
@@ -204,8 +232,12 @@ func signin(c echo.Context) (err error) {
 	}
 
 	// トークンを作成
-	claims := &jwt.StandardClaims{
-		ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
+	claims := &jwtCustomClaims{
+		u.ID,
+		u.Name,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
+		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	t, err := token.SignedString([]byte(secretKey))
@@ -265,6 +297,11 @@ func createLog(c echo.Context) error {
 		logrus.Warn(err, c)
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
+	// UserIDを取得
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(*jwtCustomClaims)
+	id := claims.ID
+	l.UserID = id
 	if err := db.Create(&l).Error; err != nil {
 		logrus.Warn(err, c)
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -292,6 +329,14 @@ func updateLog(c echo.Context) error {
 		logrus.Warn(err, c)
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
+	// UserIDを取得
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(*jwtCustomClaims)
+	uid := claims.ID
+	if l.ID != uid {
+		err = errors.New("invalid request")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
 	// レコードを更新
 	l.Text = r.Text
 	if err := db.Save(&l).Error; err != nil {
@@ -314,6 +359,14 @@ func deleteLog(c echo.Context) error {
 	if err := db.First(l, id).Error; err != nil {
 		logrus.Error(err, c)
 		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	// UserIDを取得
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(*jwtCustomClaims)
+	uid := claims.ID
+	if l.ID != uid {
+		err = errors.New("invalid request")
+		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	// 削除
 	if err := db.Delete(l).Error; err != nil {
