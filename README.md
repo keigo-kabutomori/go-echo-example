@@ -45,6 +45,19 @@ Herokuで動かす場合
 
 ## API一覧
 
+
+### `GET /api/v1/helloworld`
+
+`GET`メソッドの確認用
+
+#### Example Response
+
+```json
+{
+  "text":"hello world!! Have a nice time here!!"
+}
+```
+
 ### `POST /api/v1/signup`
 
 ユーザー登録を行う
