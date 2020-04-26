@@ -30,11 +30,12 @@ function addSubmitSignupEvent() {
       // フォームの値を取得
       const email = form.email.value
       const password = form.password.value
+      const name = form.name.value
 
       // APIの接続先とデータの設定
       const method = 'POST'
       const uri = '/api/v1/signup'
-      const data = '{"email":"' + email + '","password":"' + password + '"}'
+      const data = '{"email":"' + email + '","password":"' + password + '","name":"' + name + '"}'
 
       // API通信開始！
       let xhr = new XMLHttpRequest()
@@ -188,7 +189,7 @@ function getLogs() {
           if (ul) {
             for (let i = 0; i < xhr.response.length; i++) {
               let li = document.createElement('li')
-              li.innerText = xhr.response[i].CreatedAt + ":" + xhr.response[i].text
+              li.innerText = xhr.response[i].user_name + ":" + xhr.response[i].text + "@"+xhr.response[i].CreatedAt
               ul.appendChild(li)
             }
           }
@@ -254,7 +255,7 @@ function addPostLogEvent() {
           const ul = document.getElementById('logs')
           if (ul) {
             let li = document.createElement('li')
-            li.innerText = xhr.response.CreatedAt + ":" + xhr.response.text
+            li.innerText = xhr.response.user_name + ":" + xhr.response.text + "@"+xhr.response.CreatedAt
             ul.insertBefore(li, ul.firstChild)
           }
           form.text.value = ""

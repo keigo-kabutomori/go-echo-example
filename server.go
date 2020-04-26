@@ -23,19 +23,19 @@ import (
 // サンプル
 type Log struct {
 	gorm.Model
-	Text     string `json:"text" form:"text" query:"text"`
-	UserID   uint
-	UserName string `json:"user_name" form:"text" query:"text" gorm:"-"`
+	Text      string `json:"text" form:"text" query:"text" validate:"required"`
+	UserRefer uint
+	UserName  string `json:"user_name" form:"text" query:"text" gorm:"-"`
 }
 
 // User :
 // ログイン用
 type User struct {
 	gorm.Model
-	Email    string `json:"email" form:"email" query:"email" gorm:"unique;primary_key;not null"`
-	Password string `json:"password" form:"password" query:"password" gorm:"not null"`
+	Email    string `json:"email" form:"email" query:"email" gorm:"unique;primary_key;not null" validate:"required"`
+	Password string `json:"password" form:"password" query:"password" gorm:"not null" validate:"required"`
 	Token    string `json:"token" form:"token" query:"token"`
-	Name     string `json:"name" form:"name" query:"name" gorm:"not null;default:henoheno"`
+	Name     string `json:"name" form:"name" query:"name" gorm:"not null;default:henoheno" validate:"required"`
 	Logs     []Log  `json:"logs"`
 }
 
@@ -106,7 +106,11 @@ func main() {
 
 	// ここからはログインが必用
 	r := v1.Group("")
-	r.Use(middleware.JWT([]byte(secretKey)))
+	config := middleware.JWTConfig{
+		Claims:     &jwtCustomClaims{},
+		SigningKey: []byte(secretKey),
+	}
+	r.Use(middleware.JWTWithConfig(config))
 	// ルーティング設定
 	r.GET("/logs", getLogs)
 	r.GET("/logs/:id", getLog)
@@ -182,6 +186,11 @@ func signup(c echo.Context) (err error) {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
+	if err := db.Create(&u).Error; err != nil {
+		logrus.Warn(err, c)
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
 	// JWT トークン作成
 	claims := &jwtCustomClaims{
 		u.ID,
@@ -199,7 +208,7 @@ func signup(c echo.Context) (err error) {
 
 	// DBに保存
 	u.Token = t
-	if err := db.Create(&u).Error; err != nil {
+	if err := db.Save(&u).Error; err != nil {
 		logrus.Warn(err, c)
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
@@ -269,6 +278,16 @@ func getLogs(c echo.Context) error {
 		logrus.Error(err, c)
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
+	for i := 0; i < len(l); i++ {
+		u := new(User)
+		if err := db.First(u, l[i].UserRefer).Error; err != nil {
+			logrus.Warn(err, c)
+		}
+		l[i].UserName = u.Name
+		logrus.Println("t:", l[i])
+		logrus.Println("u:", u)
+	}
+	logrus.Println("l:", l)
 	return c.JSON(http.StatusOK, l)
 }
 
@@ -286,6 +305,13 @@ func getLog(c echo.Context) error {
 		logrus.Error(err, c)
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
+	u := new(User)
+	if err := db.First(u, l.UserRefer).Error; err != nil {
+		logrus.Warn(err, c)
+	}
+	l.UserName = u.Name
+	logrus.Println("l:", l)
+	logrus.Println("u:", u)
 	return c.JSON(http.StatusOK, l)
 }
 
@@ -301,7 +327,12 @@ func createLog(c echo.Context) error {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(*jwtCustomClaims)
 	id := claims.ID
-	l.UserID = id
+	u := new(User)
+	if err := db.First(u, id).Error; err != nil {
+		logrus.Error(err, c)
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	l.UserRefer = u.ID
 	if err := db.Create(&l).Error; err != nil {
 		logrus.Warn(err, c)
 		return c.JSON(http.StatusBadRequest, err.Error())
