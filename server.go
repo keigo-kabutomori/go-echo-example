@@ -35,7 +35,7 @@ type User struct {
 	Email    string `json:"email" form:"email" query:"email" gorm:"unique;primary_key;not null" validate:"required"`
 	Password string `json:"password" form:"password" query:"password" gorm:"not null" validate:"required"`
 	Token    string `json:"token" form:"token" query:"token"`
-	Name     string `json:"name" form:"name" query:"name" gorm:"not null;default:henoheno" validate:"required"`
+	Name     string `json:"name" form:"name" query:"name" gorm:"not null" validate:"required"`
 }
 
 type jwtCustomClaims struct {
