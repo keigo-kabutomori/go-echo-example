@@ -198,3 +198,12 @@ Herokuで動かす場合
 
 ```json
 {}
+```
+
+### API認証について
+
+リクエストヘッダに以下を追加してください。
+
+| ヘッダ        | 説明                                             | 例                                                                                                               |
+| ------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| Authorization | "Bearer "のあとにログイン時に取得したtokenを追加 | Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0NjE5NTcxMzZ9.RB3arc4-OyzASAaUhC2W3ReWaXAt_z2Fd3BN4aWTgEY |
