@@ -24,8 +24,8 @@ import (
 type Log struct {
 	gorm.Model
 	Text      string `json:"text" form:"text" query:"text" validate:"required"`
-	UserRefer uint
-	UserName  string `json:"user_name" form:"text" query:"text" gorm:"-"`
+	UserRefer uint   `json:"user_id" form:"user_id" query:"user_id"`
+	UserName  string `json:"user_name" form:"user_name" query:"user_name" gorm:"-"`
 }
 
 // User :
@@ -36,7 +36,6 @@ type User struct {
 	Password string `json:"password" form:"password" query:"password" gorm:"not null" validate:"required"`
 	Token    string `json:"token" form:"token" query:"token"`
 	Name     string `json:"name" form:"name" query:"name" gorm:"not null;default:henoheno" validate:"required"`
-	Logs     []Log  `json:"logs"`
 }
 
 type jwtCustomClaims struct {
@@ -333,6 +332,7 @@ func createLog(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	l.UserRefer = u.ID
+	l.UserName = u.Name
 	if err := db.Create(&l).Error; err != nil {
 		logrus.Warn(err, c)
 		return c.JSON(http.StatusBadRequest, err.Error())
